@@ -1,23 +1,28 @@
-const mysql = require('mysql');
-const express = require('express');
-const router = express.Router();
-const bodyParser = require('body-parser');
-const dotenv = require("dotenv").config();
+const mysql = require('mysql2');
+const dotenv = require('dotenv').config();
 
 const db = mysql.createConnection({
-    host: process.env.DATABASE_HOST ?? process.env.MYSQLHOST ?? 'localhost',
-    user: process.env.DATABASE_USER ?? process.env.MYSQLUSER ?? 'root',
-    password: process.env.DATABASE_PASSWORD ?? process.env.MYSQLPASSWORD ?? '',
-    database: process.env.DATABASE ?? process.env.MYSQLDATABASE ?? 'ie104_group2',
-    port: process.env.DATABASE_PORT ?? process.env.MYSQLPORT ?? 3306
-})
+    host: process.env.MYSQLHOST,
+    user: process.env.MYSQLUSER,
+    password: process.env.MYSQLPASSWORD,
+    database: process.env.MYSQLDATABASE,
+    port: process.env.MYSQLPORT
+});
 
-db.connect(function (err) {
+db.connect((err) => {
     if (err) {
-        throw err;
+        console.log('Database connection failed:', err);
     } else {
-        console.log('You are already connected to the database')
+        console.log('Connected database');
+
+        db.query("SET SESSION sql_mode = ''", (err) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log('SQL MODE disabled');
+            }
+        });
     }
-})
+});
 
 module.exports = db;
