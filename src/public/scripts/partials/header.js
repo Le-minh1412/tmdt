@@ -17,10 +17,10 @@ menuItem.forEach(item => {
 })
 
 // for menu__item localStorge
-const url = location.href
-if (url != 'http://localhost:3000/search/results?hotProduct=true' && url != 'http://127.0.0.1:3000/search/results?hotProduct=true'
-    && url != 'http://localhost:3000/search/results?discount=true' && url != 'http://127.0.0.1:3000/search/results?discount=true'
-    && url != 'http://localhost:3000/about-us' && url != 'http://127.0.0.1:3000/about-us') {
+const pathAndSearch = location.pathname + location.search
+if (pathAndSearch !== '/search/results?hotProduct=true'
+    && pathAndSearch !== '/search/results?discount=true'
+    && pathAndSearch !== '/about-us') {
     if (activeMenuItem) {
         let activeItem = document.querySelector(`.${activeMenuItem.replaceAll(' ', '.')}`)
         activeItem.classList.remove('active-menu-item')

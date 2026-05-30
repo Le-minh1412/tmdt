@@ -288,7 +288,7 @@ const fetchOrderPost = function () {
             if (back.status === 'error') {
                 window.alert('Vui lòng thử lại sau')
             } else if (back.status === 'success') {
-                window.location.href = `http://localhost:3000/order/payment?paying_method_id=${back.paying_method_id}&order_id=${back.order_id}`
+                window.location.href = `/order/payment?paying_method_id=${back.paying_method_id}&order_id=${back.order_id}`
             }
         })
 }
