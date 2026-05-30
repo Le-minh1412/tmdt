@@ -3,7 +3,7 @@ const path = require("path");
 const fs = require("fs");
 
 // ===== THƯ MỤC TMP =====
-const tmpDir = path.join(__dirname, "../../public/imgs/product_image/tmp");
+const tmpDir = path.join(__dirname, "../../src/public/imgs/product_image/tmp");
 
 // tạo nếu chưa có
 if (!fs.existsSync(tmpDir)) {
