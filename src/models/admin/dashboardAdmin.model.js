@@ -51,7 +51,8 @@ dashboard.getChartCategory = async () => {
             SUM(od.order_detail_price_after * od.order_detail_quantity) AS revenue
         FROM orders o
         JOIN order_details od ON o.order_id = od.order_id
-        JOIN products p ON od.product_variant_id = p.product_id
+        JOIN product_variants pv ON od.product_variant_id = pv.product_variant_id
+        JOIN products p ON pv.product_id = p.product_id
         JOIN categories c ON p.category_id = c.category_id
         WHERE o.order_status != 'Đã hủy'
         GROUP BY c.category_id, c.category_name

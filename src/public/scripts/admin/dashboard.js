@@ -12,297 +12,181 @@ Apex.grid = {
 Apex.dataLabels = {
   enabled: false,
 };
-fetch("/admin/dashboard/getChart")
-  .then((res) => res.json())
-  .then((res) => {
-    const data = res.chartRevenueData;
-
-    const categories = data.map((i) => i.month);
-    const paid = data.map((i) => i.order_paid);
-    const cancel = data.map((i) => i.order_cancel);
-
-    var optionsBar = {
-      series: [
-        {
-          name: "Đã thanh toán",
-          data: paid,
-        },
-        {
-          name: "Đã hủy",
-          data: cancel,
-        },
-      ],
-      chart: {
-        type: "bar",
-        height: 350,
-      },
-      xaxis: {
-        categories: categories,
-      },
-    };
-
-    new ApexCharts(document.querySelector("#bar"), optionsBar).render();
-  });
-fetch("/admin/dashboard/getChart")
-  .then((res) => res.json())
-  .then((res) => {
-    const catData = res.chartCategoryData;
-
-    const labels = catData.map((i) => i.category_name);
-    const series = catData.map((i) => i.revenue);
-
-    var optionDonut = {
-      chart: {
-        type: "donut",
-        width: "100%",
-        height: 400,
-      },
-      series: series,
-      labels: labels,
-      legend: {
-        position: "left",
-      },
-    };
-
-    new ApexCharts(document.querySelector("#donut"), optionDonut).render();
-  });
-var randomizeArray = function (arg) {
-  var array = arg.slice();
-  var currentIndex = array.length,
-    temporaryValue,
-    randomIndex;
-
-  while (0 !== currentIndex) {
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
-
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
-  }
-
-  return array;
-};
 
 var colorPalette = ["#00D8B6", "#008FFB", "#FEB019", "#FF4560", "#775DD0"];
 
-var chartArea = new ApexCharts(document.querySelector("#area"), optionsArea);
-chartArea.render();
+function renderDashboardCharts(chartData) {
+  const revenueData = chartData.chartRevenueData || [];
+  const categoryData = chartData.chartCategoryData || [];
+  const months = revenueData.map((item) => item.month);
+  const paid = revenueData.map((item) => Number(item.order_paid));
+  const cancel = revenueData.map((item) => Number(item.order_cancel));
 
-var optionsBar = {
-  series: [
-    {
-      name: "Đã thanh toán",
-      data: [44, 55, 57, 56, 61, 58, 63, 60, 66],
-    },
-    {
-      name: "Đã hủy",
-      data: [76, 85, 101, 98, 87, 105, 91, 114, 94],
-    },
-  ],
-  chart: {
-    type: "bar",
-    height: 350,
-  },
-  plotOptions: {
-    bar: {
-      horizontal: false,
-      columnWidth: "55%",
-      endingShape: "rounded",
-    },
-  },
-  dataLabels: {
-    enabled: false,
-  },
-  stroke: {
-    show: true,
-    width: 2,
-    colors: ["transparent"],
-  },
-  xaxis: {
-    categories: ["Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"],
-  },
-  fill: {
-    opacity: 1,
-  },
-};
-
-var chartBar = new ApexCharts(document.querySelector("#bar"), optionsBar);
-chartBar.render();
-
-var optionDonut = {
-  chart: {
-    type: "donut",
-    width: "100%",
-    height: 400,
-  },
-  dataLabels: {
-    enabled: false,
-  },
-  plotOptions: {
-    pie: {
-      customScale: 0.8,
-      donut: {
-        size: "75%",
+  const barOptions = {
+    series: [
+      {
+        name: "Đã thanh toán",
+        data: paid,
       },
-      offsetY: 20,
+      {
+        name: "Đã hủy",
+        data: cancel,
+      },
+    ],
+    chart: {
+      type: "bar",
+      height: 350,
+      toolbar: {
+        show: false,
+      },
     },
-    stroke: {
-      colors: undefined,
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: "55%",
+        endingShape: "rounded",
+      },
     },
-  },
-  colors: colorPalette,
-  title: {
-    // text: 'Department Sales',
-    style: {
-      fontSize: "18px",
-    },
-  },
-  series: [21, 23, 19],
-  labels: ["Đồ gói", "Đồ khô", "Đồ uống"],
-  legend: {
-    position: "left",
-    offsetY: 80,
-  },
-};
-
-var donut = new ApexCharts(document.querySelector("#donut"), optionDonut);
-donut.render();
-
-function trigoSeries(cnt, strength) {
-  var data = [];
-  for (var i = 0; i < cnt; i++) {
-    data.push((Math.sin(i / strength) * (i / strength) + i / strength + 1) * (strength * 2));
-  }
-
-  return data;
-}
-
-var optionsLine = {
-  chart: {
-    height: 340,
-    type: "line",
-    zoom: {
+    dataLabels: {
       enabled: false,
     },
-  },
-  plotOptions: {
     stroke: {
-      width: 4,
+      show: true,
+      width: 2,
+      colors: ["transparent"],
+    },
+    xaxis: {
+      categories: months,
+    },
+    yaxis: {
+      title: {
+        text: "Số đơn",
+      },
+    },
+  };
+
+  new ApexCharts(document.querySelector("#bar"), barOptions).render();
+
+  const areaOptions = {
+    series: [
+      {
+        name: "Đã thanh toán",
+        data: paid,
+      },
+      {
+        name: "Đã hủy",
+        data: cancel,
+      },
+    ],
+    chart: {
+      type: "area",
+      height: 350,
+      toolbar: {
+        show: false,
+      },
+      zoom: {
+        enabled: false,
+      },
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    stroke: {
       curve: "smooth",
     },
-  },
-  colors: colorPalette,
-  series: [
-    {
-      name: "Day Time",
-      data: trigoSeries(52, 20),
+    xaxis: {
+      categories: months,
     },
-    {
-      name: "Night Time",
-      data: trigoSeries(52, 27),
+    legend: {
+      position: "top",
     },
-  ],
-  title: {
-    floating: false,
-    // text: 'Customers',
-    align: "left",
-    style: {
-      fontSize: "18px",
+    yaxis: {
+      title: {
+        text: "Số đơn",
+      },
     },
-  },
-  subtitle: {
-    text: "168,215",
-    align: "center",
-    margin: 30,
-    offsetY: 40,
-    style: {
-      color: "#222",
-      fontSize: "24px",
-    },
-  },
-  markers: {
-    size: 0,
-  },
+  };
 
-  grid: {},
-  xaxis: {
-    labels: {
-      show: false,
+  new ApexCharts(document.querySelector("#area"), areaOptions).render();
+
+  const labels = categoryData.map((item) => item.category_name);
+  const series = categoryData.map((item) => Number(item.revenue));
+
+  const donutOptions = {
+    chart: {
+      type: "donut",
+      width: "100%",
+      height: 400,
     },
-    axisTicks: {
-      show: false,
+    series: series,
+    labels: labels,
+    colors: colorPalette,
+    legend: {
+      position: "left",
     },
-    tooltip: {
+    dataLabels: {
       enabled: false,
     },
-  },
-  yaxis: {
-    tickAmount: 2,
-    labels: {
-      show: false,
+    plotOptions: {
+      pie: {
+        customScale: 0.8,
+        donut: {
+          size: "75%",
+        },
+        offsetY: 20,
+      },
     },
-    axisBorder: {
-      show: false,
-    },
-    axisTicks: {
-      show: false,
-    },
-    min: 0,
-  },
-  legend: {
-    position: "top",
-    horizontalAlign: "left",
-    offsetY: -20,
-    offsetX: -30,
-  },
-};
+  };
 
-var chartLine = new ApexCharts(document.querySelector("#line"), optionsLine);
+  const donutChart = new ApexCharts(document.querySelector("#donut"), donutOptions);
+  donutChart.render();
 
-// a small hack to extend height in website sample dashboard
-chartLine.render().then(function () {
-  var ifr = document.querySelector("#wrapper");
-  if (ifr.contentDocument) {
-    ifr.style.height = ifr.contentDocument.body.scrollHeight + 20 + "px";
-  }
-});
-
-// on smaller screen, change the legends position for donut
-var mobileDonut = function () {
-  if ($(window).width() < 768) {
-    donut.updateOptions(
-      {
-        plotOptions: {
-          pie: {
-            offsetY: -15,
+  function mobileDonut() {
+    if ($(window).width() < 768) {
+      donutChart.updateOptions(
+        {
+          plotOptions: {
+            pie: {
+              offsetY: -15,
+            },
+          },
+          legend: {
+            position: "bottom",
           },
         },
-        legend: {
-          position: "bottom",
-        },
-      },
-      false,
-      false
-    );
-  } else {
-    donut.updateOptions(
-      {
-        plotOptions: {
-          pie: {
-            offsetY: 20,
+        false,
+        false,
+      );
+    } else {
+      donutChart.updateOptions(
+        {
+          plotOptions: {
+            pie: {
+              offsetY: 20,
+            },
+          },
+          legend: {
+            position: "left",
           },
         },
-        legend: {
-          position: "left",
-        },
-      },
-      false,
-      false
-    );
+        false,
+        false,
+      );
+    }
   }
-};
 
-$(window).resize(function () {
-  mobileDonut();
-});
+  $(window).resize(function () {
+    mobileDonut();
+  });
+}
+
+fetch("/admin/dashboard/getChart")
+  .then((res) => res.json())
+  .then((res) => {
+    if (res.status === "success") {
+      renderDashboardCharts(res);
+    }
+  })
+  .catch((error) => {
+    console.error("Lỗi tải dữ liệu dashboard:", error);
+  });
