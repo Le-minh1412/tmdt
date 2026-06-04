@@ -30,9 +30,9 @@
 	</div>
 	<div class="comment__content">
 		<p><%= feedback.feedback_content ?? 'null' %></p>
-		<% if (feedback.feedback_img) { %>
+		<% if (feedback.feedback_img_name) { %>
 		<div class="comment__pictures">
-			<img src="/imgs/feedbacks/<%= feedback.feedback_img %>" alt="comment-image">
+			<img src="/imgs/feedbacks/<%= feedback.feedback_img_name %>" alt="comment-image">
 		</div>
 		<% } %>
 

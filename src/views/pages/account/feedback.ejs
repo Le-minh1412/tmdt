@@ -65,9 +65,11 @@
 					<div class="ratingText"></div>
 				</div>
 				<textarea name="opinion" cols="30" rows="8" readonly placeholder="Đánh giá của bạn..."><%= orderDetails[i].feedback.feedback_content ?? 'Bạn không để lại lời nhận xét nào' %></textarea>
-				<% if (orderDetails[i].feedback.feedback_img) { %>
-				<div class="image-preview-container">
-					<img src="/imgs/feedbacks/<%= orderDetails[i].feedback.feedback_img %>" alt="Ảnh đánh giá">
+			<% if (orderDetails[i].feedback.feedback_imgs && orderDetails[i].feedback.feedback_imgs.length > 0) { %>
+			<div class="image-preview-container">
+				<% orderDetails[i].feedback.feedback_imgs.forEach(img => { %>
+				<img src="/imgs/feedbacks/<%= img %>" alt="Ảnh đánh giá">
+				<% }); %>
 				</div>
 				<% } %>
 			</div>

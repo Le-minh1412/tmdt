@@ -184,23 +184,30 @@ accountController.sendFeedback = async (req, res) => {
         return;
       }
 
-      let feedback_img = null;
-      // So khớp với has_image (chấp nhận cả boolean và string)
       const hasImage = feedback.has_image === true || feedback.has_image === "true";
 
-      if (hasImage && files && files[fileIndex]) {
-        feedback_img = files[fileIndex].filename;
-        fileIndex++;
-        console.log(`Matched image ${feedback_img} to product_variant_id ${feedback.product_variant_id}`);
-      }
-
-      account.insertFeedback(feedback.product_variant_id, customer_id, order_id, feedback.feedback_rate, feedback.feedback_content, feedback_img, function (err, success) {
+      account.insertFeedback(feedback.product_variant_id, customer_id, order_id, feedback.feedback_rate, feedback.feedback_content, function (err, feedbackId) {
         if (err) {
           console.error("Lỗi insertFeedback:", err);
           error = true;
           resolve();
         } else {
-          resolve();
+          // If feedback inserted successfully and has image, insert image
+          if (hasImage && files && files[fileIndex]) {
+            const feedback_img = files[fileIndex].filename;
+            fileIndex++;
+            console.log(`Inserting image ${feedback_img} for feedback_id ${feedbackId}`);
+
+            account.insertFeedbackImg(feedbackId, feedback_img, function (imgErr, imgSuccess) {
+              if (imgErr) {
+                console.error("Lỗi insertFeedbackImg:", imgErr);
+                error = true;
+              }
+              resolve();
+            });
+          } else {
+            resolve();
+          }
         }
       });
     });

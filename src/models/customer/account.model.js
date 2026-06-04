@@ -103,7 +103,7 @@ account.getDetailPurchaseHistorys = async (order_id, customer_id) => {
   });
 };
 
-account.insertFeedback = async (product_variant_id, customer_id, order_id, feedback_rate, feedback_content, feedback_img, callback) => {
+account.insertFeedback = async (product_variant_id, customer_id, order_id, feedback_rate, feedback_content, callback) => {
   // Validate inputs
   if (!product_variant_id || !customer_id || !order_id) {
     console.error("Missing required fields:", { product_variant_id, customer_id, order_id });
@@ -113,26 +113,55 @@ account.insertFeedback = async (product_variant_id, customer_id, order_id, feedb
   if (feedback_content == "") feedback_content = "Bạn không để lại lời nhận xét nào";
 
   // Use parameterized query to prevent SQL injection and ensure proper data types
-  let insertFeedback = `INSERT INTO feedbacks (product_variant_id, customer_id, order_id, feedback_rate, feedback_content, feedback_img) VALUES (?, ?, ?, ?, ?, ?)`;
+  let insertFeedback = `INSERT INTO feedbacks (product_variant_id, customer_id, order_id, feedback_rate, feedback_content, feedback_is_display) VALUES (?, ?, ?, ?, ?, 1)`;
 
-  db.query(insertFeedback, [product_variant_id, customer_id, order_id, feedback_rate, feedback_content, feedback_img], (err, result) => {
+  db.query(insertFeedback, [product_variant_id, customer_id, order_id, feedback_rate, feedback_content], (err, result) => {
     if (err) {
       console.log("Error inserting feedback:", err);
       callback(1, 0);
     } else {
       console.log("Feedback inserted successfully for product_variant_id:", product_variant_id);
+      // Return feedback_id for inserting images
+      callback(0, result.insertId);
+    }
+  });
+};
+
+account.insertFeedbackImg = async (feedback_id, feedback_img_name, callback) => {
+  if (!feedback_id || !feedback_img_name) {
+    return callback(1, 0);
+  }
+
+  let insertImg = `INSERT INTO feedback_imgs (feedback_id, feedback_img_name, feedback_img_is_display) VALUES (?, ?, 1)`;
+
+  db.query(insertImg, [feedback_id, feedback_img_name], (err, result) => {
+    if (err) {
+      console.log("Error inserting feedback image:", err);
+      callback(1, 0);
+    } else {
+      console.log("Feedback image inserted successfully for feedback_id:", feedback_id);
       callback(0, 1);
     }
   });
 };
 
 account.viewFeedback = async (customer_id, order_id, product_variant_id) => {
-  let viewFeedback = `SELECT * FROM feedbacks WHERE customer_id = ? AND order_id = ? AND product_variant_id = ?`;
+  let viewFeedback = `SELECT f.*, GROUP_CONCAT(fi.feedback_img_name) as feedback_img_names
+                      FROM feedbacks f
+                      LEFT JOIN feedback_imgs fi ON f.feedback_id = fi.feedback_id AND fi.feedback_img_is_display = 1
+                      WHERE f.customer_id = ? AND f.order_id = ? AND f.product_variant_id = ?
+                      GROUP BY f.feedback_id`;
   let feedback = await query(viewFeedback, [customer_id, order_id, product_variant_id]);
 
   if (!feedback[0]) {
     return 0;
   } else {
+    // Parse image names into array
+    if (feedback[0].feedback_img_names) {
+      feedback[0].feedback_imgs = feedback[0].feedback_img_names.split(",");
+    } else {
+      feedback[0].feedback_imgs = [];
+    }
     return feedback[0];
   }
 };
