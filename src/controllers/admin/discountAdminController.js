@@ -47,25 +47,48 @@ discountAdminController.getAddPage = async (req, res) => {
 
   res.render("admin/pages/add_discount_admin", {
     admin,
+    error: null,
+    values: {},
   });
 };
 
 // ================= ADD =================
 discountAdminController.postAddDiscount = async (req, res) => {
   const { discount_name, discount_description, discount_start_date, discount_end_date, discount_amount } = req.body;
+  let admin = req.admin;
+
+  const values = {
+    discount_name,
+    discount_description,
+    discount_start_date,
+    discount_end_date,
+    discount_amount,
+  };
 
   if (!discount_name || !discount_start_date || !discount_end_date || !discount_amount) {
-    return res.send("Thiếu dữ liệu");
+    return res.render("admin/pages/add_discount_admin", {
+      admin,
+      error: "Vui lòng điền đầy đủ thông tin khuyến mãi",
+      values,
+    });
   }
 
   const amount = Number(discount_amount);
 
   if (amount < 0 || amount > 100) {
-    return res.send("Giảm giá phải từ 0 đến 100%");
+    return res.render("admin/pages/add_discount_admin", {
+      admin,
+      error: "Giảm giá phải từ 0 đến 100%",
+      values,
+    });
   }
 
-  if (new Date(discount_start_date) > new Date(discount_end_date)) {
-    return res.send("Ngày bắt đầu phải nhỏ hơn ngày kết thúc");
+  if (new Date(discount_start_date) >= new Date(discount_end_date)) {
+    return res.render("admin/pages/add_discount_admin", {
+      admin,
+      error: "Ngày kết thúc phải sau ngày bắt đầu",
+      values,
+    });
   }
 
   const sql = `
@@ -107,13 +130,34 @@ discountAdminController.getEditPage = async (req, res) => {
 // ================= UPDATE =================
 discountAdminController.updateDiscount = async (req, res) => {
   const id = req.params.id;
+  let admin = req.admin;
 
   const { discount_name, discount_description, discount_start_date, discount_end_date, discount_amount } = req.body;
 
   const amount = Number(discount_amount);
+  const item = {
+    discount_id: id,
+    discount_name,
+    discount_description,
+    discount_start_date,
+    discount_end_date,
+    discount_amount,
+  };
 
   if (amount < 0 || amount > 100) {
-    return res.send("Giảm giá phải từ 0 đến 100%");
+    return res.render("admin/pages/edit_discount_admin", {
+      admin,
+      item,
+      error: "Giảm giá phải từ 0 đến 100%",
+    });
+  }
+
+  if (new Date(discount_start_date) >= new Date(discount_end_date)) {
+    return res.render("admin/pages/edit_discount_admin", {
+      admin,
+      item,
+      error: "Ngày kết thúc phải sau ngày bắt đầu",
+    });
   }
 
   const sql = `
