@@ -29,7 +29,7 @@
 			<% for(let i = 0; i < orderDetails.length; i++) { %>
 			<div class="feedback-form-item">
 				<div class="product-info">
-					<input type="hidden" name="product_variant_id" value="<%= orderDetails[i].product_variant_id ?? 'null' %>">
+				<input type="hidden" name="product_variant_id" value="<%= orderDetails[i].product_variant_id || '' %>">
 					<img src="/imgs/product_image/P<%= orderDetails[i].product_id %>/<%= orderDetails[i].product_avt_img %>" alt="<%= orderDetails[i].product_name %>">
 					<div class="product-details">
 						<h4 class="product_name">
@@ -98,7 +98,8 @@
 	</div>
 	<% } %>
 	<% }%>
-	<% if (!orderDetails[0].feedback) { %>
+	<% let hasUnreviewedProducts = orderDetails.some(item => !item.feedback); %>
+	<% if (hasUnreviewedProducts) { %>
 	<div class="popup__button">
 		<a href="/account/purchase" class="btn btn--outlined sec btn-cancel">Hủy</a>
 		<button type="submit" class="btn btn--filled sec">Gửi đánh giá</button>
